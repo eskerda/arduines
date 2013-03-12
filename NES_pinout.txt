@@ -1,0 +1,38 @@
+http://pinouts.ru/Game/snescontroller_pinout.shtml
+
+
+NES joystick controller pinout
+
+       o 4
+
+  1 o  o 5
+
+  2 o  o 6
+
+  3 o  o 7
+ 
+
+1. +5VDC Supply
+2. ?
+3. ?
+4. GND
+5. CLK
+6. Latch
+7. Data out
+
+The NES starts the show by sending a high pulse down the Latch line, which makes the 4021 (8-bit shift register) inside the controller grab and store the state of all buttons.
+
+Then the NES sends a series of eight low pulses down the CLK line, which makes the controller shuffle bits (one for each CLK pulse) down the Data Out line according to which buttons were pressed when latched. A low bit on the Data Out line means the button is pressed.
+
+Clock pulse and corresponding button
+1. A
+2. B
+3. Select
+4. Start
+5. North
+6. South
+7. West
+8. East
+
+Pins 2 & 3 aren't used on the standard pad. I believe they may be used with alternative controllers like the light gun or Arkanoid paddle.
+

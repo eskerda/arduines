@@ -1,0 +1,7 @@
+{
+  "name": "node-nes",
+  "version": "0.1.0",
+  "dependencies": {
+    "serialport": "1.0.8"
+  }
+}

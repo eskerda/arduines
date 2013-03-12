@@ -1,0 +1,53 @@
+
+NES joystick controller pinout
+
+      o 4
+  1 o o 5
+  2 o o 6
+  3 o o 7
+ 
+
+1. +5VDC Supply
+2. ?
+3. ?
+4. GND
+5. CLK
+6. Latch
+7. Data out
+
+Arduino Firmwares
+https://github.com/arduino/Arduino/tree/master/hardware/arduino/firmwares
+
+NES Pinout
+http://pinouts.ru/Game/snescontroller_pinout.shtml
+
+Update UNO
+http://arduino.cc/en/Hacking/DFUProgramming8U2
+
+LUFA
+http://www.fourwalledcubicle.com/LUFA.php
+
+DFU-PROGRAMMER
+https://aur.archlinux.org/packages/dfu-programmer/
+
+Arduino UNO Joystick
+http://hunt.net.nz/users/darran/weblog/a3599/
+
+
+Arduino UNO R3 DFU Mode: Pin together GND and RESET (near USB connector)
+    ____________________
+   | o       ···········
+RESET ---> + · ·
+GND -----> + · ·
+  _|____
+ |      |
+ | USB  |
+ |______|
+   |
+   |
+
+DFU-Programmer patched version
+https://aur.archlinux.org/packages/dfu-programmer/
+http://smartinteractionlab.com/lufa-example-turning-your-arduino-into-a-keyboard/
+
+http://code.google.com/p/unojoy/
