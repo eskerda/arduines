@@ -48,6 +48,12 @@ GND -----> + · ·
 
 DFU-Programmer patched version
 https://aur.archlinux.org/packages/dfu-programmer/
+
+Easy sample
 http://smartinteractionlab.com/lufa-example-turning-your-arduino-into-a-keyboard/
 
+UnoJoy
 http://code.google.com/p/unojoy/
+
+Build the Arduino firmware
+http://angryelectron.com/arduino-firmware/
