@@ -57,3 +57,7 @@ http://code.google.com/p/unojoy/
 
 Build the Arduino firmware
 http://angryelectron.com/arduino-firmware/
+
+VUSB problem
+Descriptors.c:57:33: error: variable 'DeviceDescriptor' must be const in order to be put into read-only section by means of '__attribute__((progmem))
+http://avr.2057.n7.nabble.com/VUSB-problem-td16922.html
