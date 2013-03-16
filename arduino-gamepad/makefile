@@ -58,26 +58,15 @@
 # To rebuild project do "make clean" then "make all".
 #----------------------------------------------------------------------------
 
-# MCU name(s)
-# 	Since the ATMEGA8U2 part is not directly supported by the current
-#	versions of either avrdude or dfu-programmer, we specify a dummy
-#	part; AT90USB82 which is close enough in memory size and organization
-MCU = atmega16u2
-MCU_AVRDUDE = at90usb82
-MCU_DFU = atmega16u2
 
-# Specify the Arduino model using the assigned PID.  This is used by Descriptors.c
-#   to set PID and product descriptor string
-# Uno PID:
-ARDUINO_MODEL_PID = 0x0001
-# Mega 2560 PID:
-#ARDUINO_MODEL_PID = 0x0010
+# MCU name
+MCU = at90usb1287
 
 
 # Target board (see library "Board Types" documentation, NONE for projects not requiring
 # LUFA board drivers). If USER is selected, put custom board drivers in a directory called 
 # "Board" inside the application directory.
-BOARD  = USER
+BOARD  = USBKEY
 
 
 # Processor frequency.
@@ -91,7 +80,7 @@ BOARD  = USER
 #     does not *change* the processor frequency - it should merely be updated to
 #     reflect the processor speed set externally so that the code can use accurate
 #     software delays.
-F_CPU = 16000000
+F_CPU = 8000000
 
 
 # Input clock frequency.
@@ -113,7 +102,7 @@ FORMAT = ihex
 
 
 # Target file name (without extension).
-TARGET = Arduino-joystick
+TARGET = Joystick
 
 
 # Object files directory
@@ -123,19 +112,16 @@ OBJDIR = .
 
 
 # Path to the LUFA library
-LUFA_PATH = ../..
+LUFA_PATH = ../../../..
 
 
-# LUFA library compile-time options
+# LUFA library compile-time options and predefined tokens
 LUFA_OPTS  = -D USB_DEVICE_ONLY
 LUFA_OPTS += -D FIXED_CONTROL_ENDPOINT_SIZE=8
 LUFA_OPTS += -D FIXED_NUM_CONFIGURATIONS=1
 LUFA_OPTS += -D USE_FLASH_DESCRIPTORS
-LUFA_OPTS += -D DEVICE_STATE_AS_GPIOR=0
 LUFA_OPTS += -D USE_STATIC_OPTIONS="(USB_DEVICE_OPT_FULLSPEED | USB_OPT_REG_ENABLED | USB_OPT_AUTO_PLL)"
-#LUFA_OPTS += -D NO_DEVICE_SELF_POWER
-LUFA_OPTS += -D NO_DEVICE_REMOTE_WAKEUP
-LUFA_OPTS += -D NO_INTERNAL_SERIAL
+
 
 # Create the LUFA source path variables by including the LUFA root makefile
 include $(LUFA_PATH)/LUFA/makefile
@@ -187,20 +173,15 @@ EXTRAINCDIRS = $(LUFA_PATH)/
 #     gnu89 = c89 plus GCC extensions
 #     c99   = ISO C99 standard (not yet fully implemented)
 #     gnu99 = c99 plus GCC extensions
-CSTANDARD = -std=gnu99
+CSTANDARD = -std=c99
 
 
 # Place -D or -U options here for C sources
-CDEFS  = -DF_CPU=$(F_CPU)UL 
-CDEFS += -DF_CLOCK=$(F_CLOCK)UL 
-CDEFS += -DARDUINO_MODEL_PID=$(ARDUINO_MODEL_PID)
-CDEFS += -DBOARD=BOARD_$(BOARD) 
+CDEFS  = -DF_CPU=$(F_CPU)UL
+CDEFS += -DF_CLOCK=$(F_CLOCK)UL
+CDEFS += -DBOARD=BOARD_$(BOARD)
 CDEFS += $(LUFA_OPTS)
-CDEFS += -DAVR_RESET_LINE_PORT="PORTD"
-CDEFS += -DAVR_RESET_LINE_DDR="DDRD"
-CDEFS += -DAVR_RESET_LINE_MASK="(1 << 7)"
-CDEFS += -DTX_RX_LED_PULSE_MS=3
-CDEFS += -DPING_PONG_LED_PULSE_MS=100
+
 
 # Place -D or -U options here for ASM sources
 ADEFS  = -DF_CPU=$(F_CPU)
@@ -264,7 +245,6 @@ CPPFLAGS += -fshort-enums
 CPPFLAGS += -fno-exceptions
 CPPFLAGS += -Wall
 CPPFLAGS += -Wundef
-CFLAGS += -Wundef
 #CPPFLAGS += -mshort-calls
 #CPPFLAGS += -fno-unit-at-a-time
 #CPPFLAGS += -Wstrict-prototypes
@@ -357,7 +337,7 @@ LDFLAGS += $(PRINTF_LIB) $(SCANF_LIB) $(MATH_LIB)
 # Type: avrdude -c ?
 # to get a full listing.
 #
-AVRDUDE_PROGRAMMER = avrispmkii
+AVRDUDE_PROGRAMMER = jtagmkII
 
 # com1 = serial port. Use lpt1 to connect to parallel port.
 AVRDUDE_PORT = usb
@@ -380,13 +360,10 @@ AVRDUDE_WRITE_FLASH = -U flash:w:$(TARGET).hex
 # to submit bug reports.
 #AVRDUDE_VERBOSE = -v -v
 
-AVRDUDE_FORCE = -F
-
-AVRDUDE_FLAGS = -p $(MCU_AVRDUDE) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER)
+AVRDUDE_FLAGS = -p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER)
 AVRDUDE_FLAGS += $(AVRDUDE_NO_VERIFY)
 AVRDUDE_FLAGS += $(AVRDUDE_VERBOSE)
 AVRDUDE_FLAGS += $(AVRDUDE_ERASE_COUNTER)
-AVRDUDE_FLAGS += $(AVRDUDE_FORCE)
 
 
 
@@ -436,6 +413,7 @@ REMOVEDIR = rm -rf
 COPY = cp
 WINSHELL = cmd
 
+
 # Define Messages
 # English
 MSG_ERRORS_NONE = Errors: none
@@ -481,11 +459,10 @@ ALL_ASFLAGS = -mmcu=$(MCU) -I. -x assembler-with-cpp $(ASFLAGS)
 
 
 # Default target.
-#all: begin gccversion sizebefore build checkinvalidevents showliboptions showtarget sizeafter end
-all: begin gccversion sizebefore build showliboptions showtarget sizeafter end
+all: begin gccversion sizebefore build sizeafter end
 
 # Change the build target to build a HEX file or a library.
-build: elf hex eep lss sym asm
+build: elf hex eep lss sym
 #build: lib
 
 
@@ -494,7 +471,6 @@ hex: $(TARGET).hex
 eep: $(TARGET).eep
 lss: $(TARGET).lss
 sym: $(TARGET).sym
-asm: $(TARGET).s
 LIBNAME=lib$(TARGET).a
 lib: $(LIBNAME)
 
@@ -518,6 +494,7 @@ ELFSIZE = $(SIZE) $(MCU_FLAG) $(FORMAT_FLAG) $(TARGET).elf
 MCU_FLAG = $(shell $(SIZE) --help | grep -- --mcu > /dev/null && echo --mcu=$(MCU) )
 FORMAT_FLAG = $(shell $(SIZE) --help | grep -- --format=.*avr > /dev/null && echo --format=avr )
 
+
 sizebefore:
 	@if test -f $(TARGET).elf; then echo; echo $(MSG_SIZE_BEFORE); $(ELFSIZE); \
 	2>/dev/null; echo; fi
@@ -526,33 +503,7 @@ sizeafter:
 	@if test -f $(TARGET).elf; then echo; echo $(MSG_SIZE_AFTER); $(ELFSIZE); \
 	2>/dev/null; echo; fi
 
-#$(LUFA_PATH)/LUFA/LUFA_Events.lst:
-#	@make -C $(LUFA_PATH)/LUFA/ LUFA_Events.lst
 
-#checkinvalidevents: $(LUFA_PATH)/LUFA/LUFA_Events.lst
-#	@echo
-#	@echo Checking for invalid events...
-#	@$(shell) avr-nm $(OBJ) | sed -n -e 's/^.*EVENT_/EVENT_/p' | \
-#	                 grep -F -v --file=$(LUFA_PATH)/LUFA/LUFA_Events.lst > InvalidEvents.tmp || true
-#	@sed -n -e 's/^/  WARNING - INVALID EVENT NAME: /p' InvalidEvents.tmp
-#	@if test -s InvalidEvents.tmp; then exit 1; fi
-	
-showliboptions:
-	@echo
-	@echo ---- Compile Time Library Options ----
-	@for i in $(LUFA_OPTS:-D%=%); do \
-		echo $$i; \
-	done
-	@echo --------------------------------------
-
-showtarget:
-	@echo
-	@echo --------- Target Information ---------
-	@echo AVR Model: $(MCU)
-	@echo Board:     $(BOARD)
-	@echo Clock:     $(F_CPU)Hz CPU, $(F_CLOCK)Hz Master
-	@echo --------------------------------------
-	
 
 # Display compiler version information.
 gccversion : 
@@ -564,26 +515,25 @@ program: $(TARGET).hex $(TARGET).eep
 	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH) $(AVRDUDE_WRITE_EEPROM)
 
 flip: $(TARGET).hex
-	batchisp -hardware usb -device $(MCU_DFU) -operation erase f
-	batchisp -hardware usb -device $(MCU_DFU) -operation loadbuffer $(TARGET).hex program
-	batchisp -hardware usb -device $(MCU_DFU) -operation start reset 0
+	batchisp -hardware usb -device $(MCU) -operation erase f
+	batchisp -hardware usb -device $(MCU) -operation loadbuffer $(TARGET).hex program
+	batchisp -hardware usb -device $(MCU) -operation start reset 0
 
 dfu: $(TARGET).hex
-	dfu-programmer $(MCU_DFU) erase
-	dfu-programmer $(MCU_DFU) flash --debug 1 $(TARGET).hex
-	dfu-programmer $(MCU_DFU) reset
-
+	dfu-programmer $(MCU) erase
+	dfu-programmer $(MCU) flash --debug 1 $(TARGET).hex
+	dfu-programmer $(MCU) reset
 
 flip-ee: $(TARGET).hex $(TARGET).eep
 	$(COPY) $(TARGET).eep $(TARGET)eep.hex
-	batchisp -hardware usb -device $(MCU_DFU) -operation memory EEPROM erase
-	batchisp -hardware usb -device $(MCU_DFU) -operation memory EEPROM loadbuffer $(TARGET)eep.hex program
-	batchisp -hardware usb -device $(MCU_DFU) -operation start reset 0
+	batchisp -hardware usb -device $(MCU) -operation memory EEPROM erase
+	batchisp -hardware usb -device $(MCU) -operation memory EEPROM loadbuffer $(TARGET)eep.hex program
+	batchisp -hardware usb -device $(MCU) -operation start reset 0
 	$(REMOVE) $(TARGET)eep.hex
 
 dfu-ee: $(TARGET).hex $(TARGET).eep
-	dfu-programmer $(MCU_DFU) flash-eeprom --debug 1 --suppress-bootloader-mem $(TARGET).eep
-	dfu-programmer $(MCU_DFU) reset
+	dfu-programmer $(MCU) flash-eeprom --debug 1 --suppress-bootloader-mem $(TARGET).eep
+	dfu-programmer $(MCU) reset
 
 
 # Generate avr-gdb config/init file which does the following:
@@ -717,15 +667,13 @@ $(OBJDIR)/%.o : %.S
 # Create preprocessed source for use in sending a bug report.
 %.i : %.c
 	$(CC) -E -mmcu=$(MCU) -I. $(CFLAGS) $< -o $@ 
-	
+
 
 # Target: clean project.
-clean: begin clean_list clean_binary end
+clean: begin clean_list end
 
-clean_binary:
-	$(REMOVE) $(TARGET).hex
-	
-clean_list:
+clean_list :
+	@echo
 	@echo $(MSG_CLEANING)
 	$(REMOVE) $(TARGET).hex
 	$(REMOVE) $(TARGET).eep
