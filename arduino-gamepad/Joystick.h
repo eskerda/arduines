@@ -45,12 +45,10 @@
 
         #include "Descriptors.h"
 
-        #include <LUFA/Version.h>
-        #include <LUFA/Drivers/Board/Joystick.h>
-        #include <LUFA/Drivers/Board/LEDs.h>
-        #include <LUFA/Drivers/Board/Buttons.h>
-        #include <LUFA/Drivers/USB/USB.h>
-        #include <LUFA/Drivers/USB/Class/HID.h>
+		#include <LUFA/Version.h>
+		#include <LUFA/Drivers/Board/LEDs.h>
+		#include <LUFA/Drivers/USB/USB.h>
+		#include <LUFA/Drivers/USB/Class/HID.h>
 
     /* Type Defines: */
         /** Type define for the joystick HID report structure, for creating and sending HID reports to the host PC.

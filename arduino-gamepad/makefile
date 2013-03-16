@@ -60,13 +60,17 @@
 
 
 # MCU name
-MCU = at90usb1287
+MCU = atmega16u2
+MCU_AVRDUDE = atmega16u2
+MCU_DFU = atmega16u2
+
+ARDUINO_MODEL_PID = 0x0001
 
 
 # Target board (see library "Board Types" documentation, NONE for projects not requiring
 # LUFA board drivers). If USER is selected, put custom board drivers in a directory called 
 # "Board" inside the application directory.
-BOARD  = USBKEY
+BOARD  = USER
 
 
 # Processor frequency.
@@ -112,7 +116,7 @@ OBJDIR = .
 
 
 # Path to the LUFA library
-LUFA_PATH = ../../../..
+LUFA_PATH = ..
 
 
 # LUFA library compile-time options and predefined tokens

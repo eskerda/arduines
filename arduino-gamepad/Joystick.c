@@ -86,9 +86,7 @@ void SetupHardware(void)
     clock_prescale_set(clock_div_1);
 
     /* Hardware Initialization */
-    Joystick_Init();
     LEDs_Init();
-    Buttons_Init();
     USB_Init();
 }
 
@@ -144,25 +142,11 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
                                          uint16_t* const ReportSize)
 {
     USB_JoystickReport_Data_t* JoystickReport = (USB_JoystickReport_Data_t*)ReportData;
-    
-    uint8_t JoyStatus_LCL    = Joystick_GetStatus();
-    uint8_t ButtonStatus_LCL = Buttons_GetStatus();
 
-    if (JoyStatus_LCL & JOY_UP)
-      JoystickReport->Y = -100;
-    else if (JoyStatus_LCL & JOY_DOWN)
-      JoystickReport->Y =  100;
-
-    if (JoyStatus_LCL & JOY_LEFT)
-      JoystickReport->X = -100;
-    else if (JoyStatus_LCL & JOY_RIGHT)
-      JoystickReport->X =  100;
-
-    if (JoyStatus_LCL & JOY_PRESS)
-      JoystickReport->Button  = (1 << 1);
-      
-    if (ButtonStatus_LCL & BUTTONS_BUTTON1)
-      JoystickReport->Button |= (1 << 0);
+    // For now just send this dummy report.
+    JoystickReport->X = -100;
+    JoystickReport->Y = -100;
+    JoystickReport->Button = 0x03;
       
     *ReportSize = sizeof(USB_JoystickReport_Data_t);
     return false;
