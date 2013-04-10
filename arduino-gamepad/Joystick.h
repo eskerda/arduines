@@ -37,18 +37,19 @@
 #define _JOYSTICK_H_
 
     /* Includes: */
-        #include <avr/io.h>
-        #include <avr/wdt.h>
-        #include <avr/power.h>
-        #include <avr/interrupt.h>
-        #include <string.h>
+    #include <avr/io.h>
+    #include <avr/wdt.h>
+    #include <avr/power.h>
+    #include <avr/interrupt.h>
+    #include <string.h>
 
-        #include "Descriptors.h"
+    #include "Descriptors.h"
 
-		#include <LUFA/Version.h>
-		#include <LUFA/Drivers/Board/LEDs.h>
-		#include <LUFA/Drivers/USB/USB.h>
-		#include <LUFA/Drivers/USB/Class/HID.h>
+    #include <LUFA/Version.h>
+    #include <LUFA/Drivers/Board/LEDs.h>
+    #include <LUFA/Drivers/Peripheral/Serial.h>
+    #include <LUFA/Drivers/USB/USB.h>
+    #include <LUFA/Drivers/USB/Class/HID.h>
 
     /* Type Defines: */
         /** Type define for the joystick HID report structure, for creating and sending HID reports to the host PC.
