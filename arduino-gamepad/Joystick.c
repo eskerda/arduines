@@ -36,8 +36,14 @@
 
 #include "Joystick.h"
 
+/** Circular buffer to hold data from the serial port before it is sent to the host. */
+RingBuff_t USARTtoUSB_Buffer;
+
 /** Buffer to hold the previously generated HID report, for comparison purposes inside the HID class driver. */
 uint8_t PrevJoystickHIDReportBuffer[sizeof(USB_JoystickReport_Data_t)];
+
+USB_JoystickReport_Data_t joyReport = {0, 0, 0};
+
 
 /** LUFA HID Class driver interface configuration and state information. This structure is
  *  passed to all HID Class driver functions, so that multiple instances of the same class
@@ -64,8 +70,8 @@ USB_ClassInfo_HID_Device_t Joystick_HID_Interface =
 int main(void)
 {
     SetupHardware();
+    RingBuffer_InitBuffer(&USARTtoUSB_Buffer);
     
-    LEDs_SetAllLEDs(LEDMASK_USB_NOTREADY);
     sei();
     
     for (;;)
@@ -85,9 +91,14 @@ void SetupHardware(void)
     /* Disable clock division */
     clock_prescale_set(clock_div_1);
 
+    Serial_Init(115200, true);
     /* Hardware Initialization */
     LEDs_Init();
     USB_Init();
+
+    UCSR1B = ((1 << RXCIE1) | (1 << TXEN1) | (1 << RXEN1));
+
+    LEDs_SetAllLEDs(LEDMASK_USB_NOTREADY);
 }
 
 /** Event handler for the library USB Connection event. */
@@ -141,15 +152,9 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
                                          void* ReportData,
                                          uint16_t* const ReportSize)
 {
-    USB_JoystickReport_Data_t* JoystickReport = (USB_JoystickReport_Data_t*)ReportData;
-
-    // For now just send this dummy report.
-    JoystickReport->X = -100;
-    JoystickReport->Y = -100;
-    JoystickReport->Button = 0x03;
-      
+    memcpy(ReportData, &joyReport, sizeof(USB_JoystickReport_Data_t));
     *ReportSize = sizeof(USB_JoystickReport_Data_t);
-    return false;
+    return true;
 }
 
 /** HID class driver callback function for the processing of HID reports from the host.
@@ -167,4 +172,24 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
                                           const uint16_t ReportSize)
 {
     // Unused (but mandatory for the HID class driver) in this demo, since there are no Host->Device reports
+}
+
+/** ISR to manage the reception of data from the serial port, placing received bytes into a circular buffer
+ *  for later transmission to the host.
+ */
+ISR(USART1_RX_vect, ISR_BLOCK)
+{
+    uint8_t ReceivedByte = UDR1;
+
+    if (USB_DeviceState == DEVICE_STATE_Configured && !RingBuffer_IsFull(&USARTtoUSB_Buffer))
+        RingBuffer_Insert(&USARTtoUSB_Buffer, ReceivedByte);
+
+    RingBuff_Count_t BufferCount = RingBuffer_GetCount(&USARTtoUSB_Buffer);
+    if (BufferCount >= (sizeof(joyReport) + 1)) {
+          joyReport.X = (int8_t) RingBuffer_Remove(&USARTtoUSB_Buffer);
+          joyReport.Y = (int8_t) RingBuffer_Remove(&USARTtoUSB_Buffer);
+          joyReport.Button = (uint8_t) RingBuffer_Remove(&USARTtoUSB_Buffer);
+          /* Remove spacer at the end of the struct*/
+          RingBuffer_Remove(&USARTtoUSB_Buffer);
+    }
 }
